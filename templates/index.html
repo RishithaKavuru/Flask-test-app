@@ -1,17 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Flask Test App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>Real-Time Markdown Editor</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    textarea {
+      width: 50%;
+      padding: 20px;
+      font-size: 1rem;
+      border: none;
+      resize: none;
+      outline: none;
+      border-right: 1px solid #ddd;
+    }
+    #preview-pane {
+      width: 50%;
+      padding: 20px;
+      overflow-y: auto;
+      background: #f9f9f9;
+    }
+    .toolbar {
+      margin-bottom: 10px;
+    }
+    button {
+      margin-right: 10px;
+      padding: 8px 14px;
+      border: none;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
 </head>
 <body>
-    <h1>Flask Deployment Test</h1>
-    <form method="POST">
-        <input type="text" name="name" placeholder="Enter your name" required />
-        <button type="submit">Submit</button>
-    </form>
-    {% if message %}
-        <p>{{ message }}</p>
-    {% endif %}
+  <textarea id="markdown" placeholder="Type your markdown here..."># Hello, Markdown!</textarea>
+
+  <div id="preview-pane">
+    <div class="toolbar">
+      <button onclick="copyToClipboard()">Copy</button>
+      <button onclick="exportToPDF()">Export</button>
+    </div>
+    <div id="preview"></div>
+  </div>
+
+  <script>
+    const markdownInput = document.getElementById("markdown");
+    const preview = document.getElementById("preview");
+
+    function renderMarkdown() {
+      preview.innerHTML = marked.parse(markdownInput.value);
+    }
+
+    markdownInput.addEventListener("input", renderMarkdown);
+    renderMarkdown(); // Initial render
+
+    function copyToClipboard() {
+      const temp = document.createElement("div");
+      temp.innerHTML = preview.innerHTML;
+      const text = temp.innerText;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(() => alert("Failed to copy."));
+    }
+
+    function exportToPDF() {
+      html2pdf().from(preview).save("markdown.pdf");
+    }
+  </script>
 </body>
 </html>
